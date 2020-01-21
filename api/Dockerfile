@@ -10,7 +10,7 @@ ARG VARNISH_VERSION=6.3
 
 
 # "php" stage
-FROM php:${PHP_VERSION}-fpm-alpine AS googleapis
+FROM php:${PHP_VERSION}-fpm-alpine AS googleapis_php
 
 RUN apk add --no-cache \
 		acl \
@@ -112,13 +112,13 @@ CMD ["php-fpm"]
 
 # "nginx" stage
 # depends on the "php" stage above
-FROM nginx:${NGINX_VERSION}-alpine AS api_platform_nginx
+FROM nginx:${NGINX_VERSION}-alpine googleapis_nginx
 
 COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /srv/api/public
 
-COPY --from=googleapis /srv/api/public ./
+COPY --from=googleapis_php /srv/api/public ./
 
 
 # "varnish" stage
