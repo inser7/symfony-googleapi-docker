@@ -1,3 +1,11 @@
+version: '3.4'
+
+x-cache-from:
+  - &api-cache-from
+    cache_from:
+      - ${NGINX_IMAGE:-quay.io/googleapis/nginx}
+      - ${PHP_IMAGE:-quay.io/googleapis/php} 
+
 services:
     php:
       build:
@@ -21,3 +29,7 @@ services:
         - php
       volumes:
         - ./api/public:/srv/api/public:ro
+      ports:
+          - target: 80
+            published: 8080
+            protocol: tcp

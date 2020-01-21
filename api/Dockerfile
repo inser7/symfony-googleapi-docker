@@ -55,13 +55,8 @@ RUN set -eux; \
 	\
 	apk del .build-deps
 
+COPY docker/php/conf.d/api-platform.prod.ini $PHP_INI_DIR/conf.d/api-platform.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-RUN set -eux; \
-	{ \
-		echo '[www]'; \
-		echo 'ping.path = /ping'; \
-	} | tee /usr/local/etc/php-fpm.d/docker-healthcheck.conf
 
 # Workaround to allow using PHPUnit 8 with Symfony 4.3
 ENV SYMFONY_PHPUNIT_VERSION=8.3
@@ -103,8 +98,8 @@ RUN set -eux; \
 	chmod +x bin/console; sync
 VOLUME /srv/api/var
 
-# COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-# RUN chmod +x /usr/local/bin/docker-entrypoint
+COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
@@ -112,7 +107,7 @@ CMD ["php-fpm"]
 
 # "nginx" stage
 # depends on the "php" stage above
-FROM nginx:${NGINX_VERSION}-alpine googleapis_nginx
+FROM nginx:${NGINX_VERSION}-alpine AS googleapis_nginx
 
 COPY docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
@@ -123,7 +118,7 @@ COPY --from=googleapis_php /srv/api/public ./
 
 # "varnish" stage
 # does not depend on any of the above stages, but placed here to keep everything in one Dockerfile
-FROM varnish:${VARNISH_VERSION} AS api_platform_varnish
+FROM varnish:${VARNISH_VERSION} AS googleapis_varnish
 
 COPY docker/varnish/conf/default.vcl /etc/varnish/default.vcl
 
