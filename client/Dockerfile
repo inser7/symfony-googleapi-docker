@@ -1,20 +1,23 @@
+# https://docs.docker.com/develop/develop-images/multistage-build/#stop-at-a-specific-build-stage
+# https://docs.docker.com/compose/compose-file/#target
+
+
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG NODE_VERSION=13
-ARG NGINX_VERSION=1.17
 
-# base image
+
+# "development" stage
 FROM node:${NODE_VERSION}-alpine AS googleapis_client_development
 
-# set working directory
-WORKDIR /app
+WORKDIR /usr/src/client
 
-# add `/app/node_modules/.bin` to $PATH
-ENV PATH /app/node_modules/.bin:$PATH
+# prevent the reinstallation of node modules at every changes in the source code
+COPY package.json yarn.lock ./
+RUN set -eux; \
+	yarn install
 
-# install and cache app dependencies
-COPY package.json /app/package.json
-RUN npm install --silent
-RUN npm install react-scripts@3.0.1 -g --silent
+COPY . ./
 
-# start app
-CMD ["npm", "start"]
+VOLUME /usr/src/client/node_modules
+
+CMD ["yarn", "start"]

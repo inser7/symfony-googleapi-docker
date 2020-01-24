@@ -31,4 +31,4 @@ Shutdown:
 
 ## Run application
 
-Point your browser at [http://localhost:8080/api/getbooks?q=ff&page=1](http://localhost:8080/api/getbooks?q=ff&page=1) to get json
+Point your browser at [http://localhost](http://localhost)

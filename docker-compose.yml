@@ -29,7 +29,20 @@ services:
         - php
       volumes:
         - ./api/public:/srv/api/public:ro
+
+    client:
+      build:
+        context: ./client
+        target: googleapis_client_development
+        cache_from:
+          - ${CLIENT_IMAGE:-quay.io/googleapis/client}
+      image: ${CLIENT_IMAGE:-quay.io/googleapis/client}
+      environment:
+        - API_PLATFORM_CLIENT_GENERATOR_ENTRYPOINT=http://api
+        - API_PLATFORM_CLIENT_GENERATOR_OUTPUT=src
+      volumes:
+        - ./client:/usr/src/client:rw,cached
       ports:
-          - target: 80
-            published: 8080
-            protocol: tcp
+        - target: 3000
+          published: 80
+          protocol: tcp
