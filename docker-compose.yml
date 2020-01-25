@@ -1,17 +1,10 @@
 version: '3.4'
 
-# x-cache-from:
-#   - &api-cache-from
-#     cache_from:
-#       - ${NGINX_IMAGE:-quay.io/googleapis/nginx}
-#       - ${PHP_IMAGE:-quay.io/googleapis/php} 
-
 services:
     php:
       build:
         context: ./api
         target: googleapis_php
-        # <<: *api-cache-from
       image: ${PHP_IMAGE:-quay.io/googleapis/php}
       healthcheck:
         interval: 10s
@@ -28,7 +21,6 @@ services:
       build:
         context: ./api
         target: googleapis_nginx
-        # <<: *api-cache-from
       image: ${NGINX_IMAGE:-quay.io/googleapis/nginx}
       depends_on:
         - php
