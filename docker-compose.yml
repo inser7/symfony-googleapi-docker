@@ -1,18 +1,23 @@
 version: '3.4'
 
-x-cache-from:
-  - &api-cache-from
-    cache_from:
-      - ${NGINX_IMAGE:-quay.io/googleapis/nginx}
-      - ${PHP_IMAGE:-quay.io/googleapis/php} 
+# x-cache-from:
+#   - &api-cache-from
+#     cache_from:
+#       - ${NGINX_IMAGE:-quay.io/googleapis/nginx}
+#       - ${PHP_IMAGE:-quay.io/googleapis/php} 
 
 services:
     php:
       build:
         context: ./api
         target: googleapis_php
-        <<: *api-cache-from
+        # <<: *api-cache-from
       image: ${PHP_IMAGE:-quay.io/googleapis/php}
+      healthcheck:
+        interval: 10s
+        timeout: 3s
+        retries: 3
+        start_period: 30s
       volumes:
         - ./api:/srv/api:rw,cached
         - ./api/docker/php/conf.d/api-platform.dev.ini/:/usr/local/etc/php/conf.d/api-platform.ini
@@ -23,7 +28,7 @@ services:
       build:
         context: ./api
         target: googleapis_nginx
-        <<: *api-cache-from
+        # <<: *api-cache-from
       image: ${NGINX_IMAGE:-quay.io/googleapis/nginx}
       depends_on:
         - php
