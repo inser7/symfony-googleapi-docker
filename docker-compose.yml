@@ -34,6 +34,10 @@ services:
         - php
       volumes:
         - ./api/public:/srv/api/public:ro
+      ports:
+        - target: 80
+          published: 8080
+          protocol: tcp
 
     client:
       build:
@@ -47,6 +51,8 @@ services:
         - API_PLATFORM_CLIENT_GENERATOR_OUTPUT=src
       volumes:
         - ./client:/usr/src/client:rw,cached
+      links:
+        - api
       ports:
         - target: 3000
           published: 80

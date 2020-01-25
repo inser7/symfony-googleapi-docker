@@ -45,7 +45,7 @@ class Main extends Component {
 
     search() {
         /* fetch API in action */
-        fetch('/api/getbooks?q='+this.state.search_string +'&page='+this.state.page)
+        fetch('http://localhost:8080/api/getbooks?q='+this.state.search_string +'&page='+this.state.page)
             .then(response => {
                 return response.json();
             })
