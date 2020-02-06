@@ -8,8 +8,8 @@ const initialState = {
     page: 0,
     total: 0,
     isFormFired: false,
-    search_string: '',
-    loading: true
+    loading: true,
+    search_string:""
 };
 
 /* Main Component */
@@ -19,33 +19,13 @@ class Main extends Component {
         super(props);
         //Initialize the state in the constructor
         this.state = initialState;
+        this.inputField = React.createRef();
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleInput = this.handleInput.bind(this);
-        this.handleButton = this.handleButton.bind(this);
-    }
-    /*componentDidMount() is a lifecycle method
-     * that gets called after the component is rendered
-     */
-
-    componentDidMount() {
     }
 
-    clear_and_search() {
-        // this.setState(initialState);
-        this.setState((prevState) => ({
-                books: [],
-                page: 0,
-                total: 0,
-                isFormFired: true,
-                search_string: prevState.search_string,
-                loading: true
-        }));
-        this.search();
-    }
-
-    search() {
+    search(value) {
         /* fetch API in action */
-        fetch('http://localhost:8080/api/getbooks?q='+this.state.search_string +'&page='+this.state.page)
+        fetch('http://localhost:8080/api/getbooks?q='+value +'&page='+this.state.page)
             .then(response => {
                 return response.json();
             })
@@ -55,7 +35,8 @@ class Main extends Component {
                         page: prevState.page + 1,
                         books : this.state.books.concat(books.items), 
                         totalItems: books.totalItems,
-                        loading: false
+                        loading: false,
+                        search_string:value,
                 }));
             });
     }
@@ -63,32 +44,21 @@ class Main extends Component {
     handleSubmit(event) {
          //preventDefault prevents page reload   
         event.preventDefault();
-        this.clear_and_search()
-    }
+        this.setState({
+            isFormFired:true
+        })
 
-    handleInput(event) {
-     
-        /*Duplicating and updating the state */
-        this.setState({ 
-            search_string:event.target.value}, () => {
-                console.log(this.state.search_string)
-            });
-    }
-
-    handleButton(event){
-        event.preventDefault();
-        this.setState((prevState) => ({
-            page: prevState.page + 1,
-            search_string: prevState.search_string
-        }));  
-        this.search()
+        const valueInput = this.refs.inputField.value;
+        if(valueInput.trim() != ""){
+            this.search(valueInput);
+        }
     }
 
     renderForm(){
         return(
             <form  onSubmit={this.handleSubmit} className="justify-content-center">
                 <div className="col-8 mt-3 mb-2 offset-lg-2">
-                        <input type="text" className="form-control" placeholder="Search here..." aria-label="Search here" onChange={(e)=>this.handleInput(e)}   />
+                        <input type="text" ref="inputField" className="form-control" placeholder="Search here..." aria-label="Search here" />
                 </div>
             </form>);
     }
@@ -115,7 +85,7 @@ class Main extends Component {
     }
 
     handleButtonNextClick(){
-        this.search();
+        this.search(this.state.search_string);
     }
 }
 
